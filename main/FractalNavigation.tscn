@@ -1,22 +1,20 @@
 [gd_scene load_steps=7 format=3 uid="uid://dican8vros2tb"]
 
 [ext_resource type="Script" path="res://main/fractal_navigation.gd" id="1"]
+[ext_resource type="Shader" path="res://main/mandelbox_fractal.gdshader" id="1_waxt1"]
 [ext_resource type="Script" path="res://main/viewer.gd" id="2"]
-[ext_resource type="Shader" path="res://main/sierpinski_fractal.gdshader" id="3"]
 [ext_resource type="Theme" uid="uid://ciixme536goj6" path="res://main/ui/ui_theme.tres" id="5"]
 [ext_resource type="PackedScene" path="res://main/ui/UI.tscn" id="6"]
 
 [sub_resource type="ShaderMaterial" id="1"]
-shader = ExtResource("3")
+shader = ExtResource("1_waxt1")
+shader_parameter/max_iter = 64
 shader_parameter/cam_pos = Vector3(8, 8, 9)
 shader_parameter/cam_mat = Basis(0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/width = 1024.0
 shader_parameter/height = 1024.0
-shader_parameter/palette = 1
 shader_parameter/ambient_occlusion = true
 shader_parameter/glow = true
-shader_parameter/mirror = false
-shader_parameter/tetrehedron = false
 shader_parameter/collision_threshold = 0.00045
 
 [node name="FractalNavigation" type="ColorRect"]
