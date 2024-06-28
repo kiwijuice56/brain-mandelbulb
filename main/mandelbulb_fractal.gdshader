@@ -14,7 +14,7 @@ uniform float height = 1024.0;
 
 // Animation constants
 const float glow_range = 0.05;
-const vec3 light_ray = vec3(1.0, 0.0, 0.0);
+const vec3 light_ray = vec3(0.0, -1.0, 0.0);
 
 // Calculation constants
 const float fov = 95.0;
@@ -40,6 +40,10 @@ void rotate(inout vec3 p) {
 	p.z = sin(t) * pt.x + cos(t) * pt.z;
 }
 
+float plane_DE(vec3 p) {
+  return dot(p, vec3(0.0, 1.0, 0.0)) + 1.1;
+}
+
 // http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
 float mandelbulb_DE(vec3 p) {
 	vec3 z = p;
@@ -47,13 +51,13 @@ float mandelbulb_DE(vec3 p) {
 	float r = 0.0;
 	for (int i = 0; i < max_bulb_iter; i++) {
 		r = length(z);
-		if ( r > 2.0)
+		if (r > 2.0)
 			break;
 		
 		// convert to polar coordinates
 		float theta = acos(z.z/r);
 		float phi = atan(z.y, z.x);
-		dr =  pow(r, bulb_power - 1.0) * bulb_power *dr + 1.0;
+		dr =  pow(r, bulb_power - 1.0) * bulb_power * dr + 1.0;
 		
 		// scale and rotate the point
 		float zr = pow(r, bulb_power);
@@ -64,15 +68,26 @@ float mandelbulb_DE(vec3 p) {
 		z = zr * vec3(sin(theta)*cos(phi), sin(phi) * sin(theta), cos(theta));
 		z += p;
 	}
-	return 0.5*log(r)*r/dr;
+	return 0.5*  log(r) * r/dr;
 }
 
-int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist) {
+vec4 world_DE(vec3 p) {
+	float d1 = mandelbulb_DE(p);
+	float d2 = plane_DE(p);
+	if (d1 < d2) {
+		return vec4(1.0, 0.0, 0.7, d1);
+	} else {
+		return vec4(0.5, 0.5, 0.5, d2);
+	}
+}
+
+int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist, inout vec4 ray_info) {
 	float dist = universe_size;
 	int iter = 0;
 	
 	for (int i = 0; i < max_iter; i++) {
-		dist = abs(mandelbulb_DE(ray_pos));
+		ray_info = world_DE(ray_pos);
+		dist = abs(ray_info.a);
 		closest_dist = min(closest_dist, dist);
 		ray_pos += ray_dir * dist;
 		
@@ -95,7 +110,7 @@ float softshadow(vec3 ro, in vec3 rd, float mint, float maxt, float k) {
     float res = 1.0;
     float t = mint;
     for( int i=0; i<16 && t<maxt; i++) {
-        float h = mandelbulb_DE(ro + rd*t);
+        float h = world_DE(ro + rd*t).a;
         if( h<0.00001 )
             return 0.0;
         res = min( res, k*h/t );
@@ -109,8 +124,7 @@ vec3 get_color(int iter, vec3 ray_pos) {
 	//	vec3(mandelbulb_DE(ray_pos + vec3(normal_sample_length, 0.0, 0.0)) - mandelbulb_DE(ray_pos - vec3(normal_sample_length, 0.0, 0.0)),
 	//		 mandelbulb_DE(ray_pos + vec3(0.0, normal_sample_length, 0.0)) - mandelbulb_DE(ray_pos - vec3(0.0, normal_sample_length, 0.0)),
 	//		 mandelbulb_DE(ray_pos + vec3(0.0, 0.0, normal_sample_length)) - mandelbulb_DE(ray_pos - vec3(0.0, 0.0, normal_sample_length))));
-	
-	return vec3(1.0) * softshadow(ray_pos - light_ray * collision_threshold * 16.0, -light_ray, 0.1, 2.0, 2);
+	return vec3(1.0) * softshadow(ray_pos - normalize(light_ray) * collision_threshold * 4.0, -normalize(light_ray), 0.4, 8.0, 8);
 }
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
@@ -124,20 +138,15 @@ void fragment() {
 	ray_dir = cam_mat * normalize(ray_dir);
 	
 	float closest_dist = universe_size;
-	int iter = march(ray_pos, ray_dir, closest_dist);
+	vec4 ray_info;
+	int iter = march(ray_pos, ray_dir, closest_dist, ray_info);
 	
 	// Color the fractal if we collided with it, otherwise create a glow with
 	// the closest we ever got to the fractal
-	COLOR.rgb = get_color(iter, ray_pos);
+	COLOR.rgb = ray_info.rgb * get_color(iter, ray_pos);
 	if (iter < max_iter) {
-		if (ambient_occlusion) {
-			COLOR.rgb *= vec3(1.0 - float(iter) / float(max_iter));
-		}
+		COLOR.rgb *= vec3(1.0 - float(iter) / float(max_iter));
 	} else {
-		if (glow) {
-			COLOR.rgb *= (1.0 - pow(closest_dist, glow_range));
-		} else {
-			COLOR.rgb *= 0.0;
-		}
+		COLOR.rgb *= (1.0 - pow(closest_dist, glow_range));
 	}
 }

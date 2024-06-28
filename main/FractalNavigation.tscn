@@ -8,14 +8,14 @@
 
 [sub_resource type="ShaderMaterial" id="1"]
 shader = ExtResource("1_11tbm")
-shader_parameter/max_iter = 128
+shader_parameter/max_iter = 512
 shader_parameter/max_bulb_iter = 8
 shader_parameter/bulb_power = 8.0
 shader_parameter/cam_pos = Vector3(8, 8, 9)
 shader_parameter/cam_mat = Basis(0, 0, 0, 0, 0, 0, 0, 0, 0)
 shader_parameter/width = 1024.0
 shader_parameter/height = 1024.0
-shader_parameter/ambient_occlusion = true
+shader_parameter/ambient_occlusion = false
 shader_parameter/glow = true
 shader_parameter/collision_threshold = 0.00013
 shader_parameter/normal_sample_length = 0.001
