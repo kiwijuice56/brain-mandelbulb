@@ -1,5 +1,4 @@
-# web-sierpinski
-Simple web explorer of the 3D sierpinski and menger fractal, made with Godot (GLSL shaders).  
+# brain-mandelbox
 
 ## Code attribution
 Sources for different code snippets and/or concepts:
