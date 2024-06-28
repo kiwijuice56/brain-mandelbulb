@@ -1,6 +1,8 @@
 shader_type canvas_item;
 
-uniform int max_iter = 64;
+uniform int max_iter = 128;
+uniform int max_bulb_iter = 8;
+uniform float bulb_power = 8.0;
 
 // Camera state, set by fractal_navigation.gd
 uniform vec3 cam_pos = vec3(0.0);
@@ -11,7 +13,8 @@ uniform float width = 1024.0;
 uniform float height = 1024.0;
 
 // Animation constants
-const float glow_range = 0.1;
+const float glow_range = 0.05;
+const vec3 light_ray = vec3(1.0, 0.0, 0.0);
 
 // Calculation constants
 const float fov = 95.0;
@@ -21,11 +24,8 @@ const float runaway_threshold = 8.0;
 // Parameters
 uniform bool ambient_occlusion = true;
 uniform bool glow = true;
-uniform float collision_threshold = 1.3e-5;
-
-vec3 get_color(int iter, vec3 ray_pos) {
-	return vec3(1.0);
-}
+uniform float collision_threshold = 1.0e-5;
+uniform float normal_sample_length = 1.0e-3;
 
 void rotate(inout vec3 p) {
 	vec3 pt = p;
@@ -45,22 +45,23 @@ float mandelbulb_DE(vec3 p) {
 	vec3 z = p;
 	float dr = 1.0;
 	float r = 0.0;
-	for (int i = 0; i < 32; i++) {
+	for (int i = 0; i < max_bulb_iter; i++) {
 		r = length(z);
-		if (r>16.0) break;
+		if ( r > 2.0)
+			break;
 		
 		// convert to polar coordinates
 		float theta = acos(z.z/r);
-		float phi = atan(z.y,z.x);
-		dr =  pow( r, 8.0-1.0)*8.0*dr + 1.0;
+		float phi = atan(z.y, z.x);
+		dr =  pow(r, bulb_power - 1.0) * bulb_power *dr + 1.0;
 		
 		// scale and rotate the point
-		float zr = pow( r,8);
-		theta = theta*8.0;
-		phi = phi*8.0;
+		float zr = pow(r, bulb_power);
+		theta = theta * bulb_power;
+		phi = phi * bulb_power;
 		
 		// convert back to cartesian coordinates
-		z = zr*vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+		z = zr * vec3(sin(theta)*cos(phi), sin(phi) * sin(theta), cos(theta));
 		z += p;
 	}
 	return 0.5*log(r)*r/dr;
@@ -77,7 +78,7 @@ int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist) {
 		
 		// We can quit marching early if we are extremely far from the fractal
 		if (dist > runaway_threshold) {
-			iter = 128;
+			iter = max_iter;
 			break;
 		}
 		
@@ -88,6 +89,28 @@ int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist) {
 		iter++;
 	}
 	return iter;
+}
+
+float softshadow(vec3 ro, in vec3 rd, float mint, float maxt, float k) {
+    float res = 1.0;
+    float t = mint;
+    for( int i=0; i<16 && t<maxt; i++) {
+        float h = mandelbulb_DE(ro + rd*t);
+        if( h<0.00001 )
+            return 0.0;
+        res = min( res, k*h/t );
+        t = h;
+    }
+    return res;
+}
+
+vec3 get_color(int iter, vec3 ray_pos) {
+	//vec3 normal = normalize(
+	//	vec3(mandelbulb_DE(ray_pos + vec3(normal_sample_length, 0.0, 0.0)) - mandelbulb_DE(ray_pos - vec3(normal_sample_length, 0.0, 0.0)),
+	//		 mandelbulb_DE(ray_pos + vec3(0.0, normal_sample_length, 0.0)) - mandelbulb_DE(ray_pos - vec3(0.0, normal_sample_length, 0.0)),
+	//		 mandelbulb_DE(ray_pos + vec3(0.0, 0.0, normal_sample_length)) - mandelbulb_DE(ray_pos - vec3(0.0, 0.0, normal_sample_length))));
+	
+	return vec3(1.0) * softshadow(ray_pos - light_ray * collision_threshold * 16.0, -light_ray, 0.1, 2.0, 2);
 }
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
