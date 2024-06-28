@@ -21,7 +21,7 @@ const float runaway_threshold = 8.0;
 // Parameters
 uniform bool ambient_occlusion = true;
 uniform bool glow = true;
-uniform float collision_threshold = 1.3e-3;
+uniform float collision_threshold = 1.3e-5;
 
 vec3 get_color(int iter, vec3 ray_pos) {
 	return vec3(1.0);
@@ -40,8 +40,30 @@ void rotate(inout vec3 p) {
 	p.z = sin(t) * pt.x + cos(t) * pt.z;
 }
 
-float mandelbox_de(vec3 p) {
-	return length(p.xz)- 2.0;
+// http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
+float mandelbulb_DE(vec3 p) {
+	vec3 z = p;
+	float dr = 1.0;
+	float r = 0.0;
+	for (int i = 0; i < 32; i++) {
+		r = length(z);
+		if (r>16.0) break;
+		
+		// convert to polar coordinates
+		float theta = acos(z.z/r);
+		float phi = atan(z.y,z.x);
+		dr =  pow( r, 8.0-1.0)*8.0*dr + 1.0;
+		
+		// scale and rotate the point
+		float zr = pow( r,8);
+		theta = theta*8.0;
+		phi = phi*8.0;
+		
+		// convert back to cartesian coordinates
+		z = zr*vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+		z += p;
+	}
+	return 0.5*log(r)*r/dr;
 }
 
 int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist) {
@@ -49,7 +71,7 @@ int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist) {
 	int iter = 0;
 	
 	for (int i = 0; i < max_iter; i++) {
-		dist = abs(mandelbox_de(ray_pos));
+		dist = abs(mandelbulb_DE(ray_pos));
 		closest_dist = min(closest_dist, dist);
 		ray_pos += ray_dir * dist;
 		
