@@ -34,7 +34,7 @@ uniform vec2 _screen_size;
 
 // Returns distance estimate to infinite plane
 float plane_DE(vec3 p) {
-  return dot(p, normalize(plane_normal)) + plane_height;
+	return dot(p, normalize(plane_normal)) + plane_height;
 }
 
 // Returns distance estimate to fractal
@@ -100,7 +100,8 @@ int march(inout vec3 ray_pos, vec3 ray_dir, inout float closest_dist, inout vec4
 	return iter;
 }
 
-float soft_shadow(vec3 ray_pos, in vec3 ray_dir, float k) {
+// https://iquilezles.org/articles/rmshadows/
+float soft_shadow(vec3 ray_pos, in vec3 ray_dir) {
 	ray_pos += ray_dir * collision_threshold * 8.0;
 	
 	float min_shadow = 1.0;
@@ -114,7 +115,7 @@ float soft_shadow(vec3 ray_pos, in vec3 ray_dir, float k) {
 			break;
 		}
 		ray_pos += ray_dir * dist;
-		min_shadow = min(min_shadow, k * dist/dist_from_surface);
+		min_shadow = min(min_shadow, light_dist * dist/dist_from_surface);
 		dist_from_surface += dist;
 	}
 	return min_shadow;
@@ -147,16 +148,17 @@ void fragment() {
 		if (iter == max_iter) {
 			break;
 		}
-		vec3 hit_color = ray_info.rgb * soft_shadow(ray_pos, -normalize(light_ray), light_dist);
+		vec3 hit_color = ray_info.rgb * soft_shadow(ray_pos, -normalize(light_ray));
 		if (i == 0) {
 			final_color = hit_color;
 		}
 		
 		hit_color *= vec3(1.0 - float(iter) / float(max_iter));
-		final_color = mix(final_color, hit_color, 0.4);
+		final_color = mix(final_color, hit_color, 0.1);
 		
 		surfaces_hit += 1;
-		ray_dir = get_normal(ray_pos);
+		vec3 normal = get_normal(ray_pos);
+		ray_dir = ray_dir - 2.0 * dot(ray_dir, normal) * normal;
 		ray_pos += ray_dir * collision_threshold * 4.0;
 	}
 	COLOR.rgb = final_color;
