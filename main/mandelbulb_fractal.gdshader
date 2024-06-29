@@ -1,6 +1,7 @@
 shader_type canvas_item;
 
 uniform int max_iter = 128;
+uniform int max_bounce = 4;
 uniform int max_bulb_iter = 8;
 uniform float bulb_power = 8.0;
 
@@ -13,7 +14,7 @@ uniform float width = 1024.0;
 uniform float height = 1024.0;
 
 // Animation constants
-const float glow_range = 0.05;
+const float glow_range = 0.5;
 const vec3 light_ray = vec3(0.0, -1.0, 0.0);
 
 // Calculation constants
@@ -65,19 +66,19 @@ float mandelbulb_DE(vec3 p) {
 		phi = phi * bulb_power;
 		
 		// convert back to cartesian coordinates
-		z = zr * vec3(sin(theta)*cos(phi), sin(phi) * sin(theta), cos(theta));
+		z = zr * vec3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
 		z += p;
 	}
-	return 0.5*  log(r) * r/dr;
+	return 0.5 * log(r) * r/dr;
 }
 
 vec4 world_DE(vec3 p) {
 	float d1 = mandelbulb_DE(p);
 	float d2 = plane_DE(p);
 	if (d1 < d2) {
-		return vec4(1.0, 0.0, 0.7, d1);
+		return vec4(220.0/255.0, 220.0/255.0, 220.0/255.0, d1);
 	} else {
-		return vec4(0.5, 0.5, 0.5, d2);
+		return vec4(129.0/255.0, 129.0/255.0, 129.0/255.0, d2);
 	}
 }
 
@@ -119,12 +120,15 @@ float softshadow(vec3 ro, in vec3 rd, float mint, float maxt, float k) {
     return res;
 }
 
-vec3 get_color(int iter, vec3 ray_pos) {
-	//vec3 normal = normalize(
-	//	vec3(mandelbulb_DE(ray_pos + vec3(normal_sample_length, 0.0, 0.0)) - mandelbulb_DE(ray_pos - vec3(normal_sample_length, 0.0, 0.0)),
-	//		 mandelbulb_DE(ray_pos + vec3(0.0, normal_sample_length, 0.0)) - mandelbulb_DE(ray_pos - vec3(0.0, normal_sample_length, 0.0)),
-	//		 mandelbulb_DE(ray_pos + vec3(0.0, 0.0, normal_sample_length)) - mandelbulb_DE(ray_pos - vec3(0.0, 0.0, normal_sample_length))));
-	return vec3(1.0) * softshadow(ray_pos - normalize(light_ray) * collision_threshold * 4.0, -normalize(light_ray), 0.4, 8.0, 8);
+vec3 get_normal(vec3 ray_pos) {
+	return normalize(
+		vec3(world_DE(ray_pos + vec3(normal_sample_length, 0.0, 0.0)).a - world_DE(ray_pos - vec3(normal_sample_length, 0.0, 0.0)).a,
+			 world_DE(ray_pos + vec3(0.0, normal_sample_length, 0.0)).a - world_DE(ray_pos - vec3(0.0, normal_sample_length, 0.0)).a,
+			 world_DE(ray_pos + vec3(0.0, 0.0, normal_sample_length)).a - world_DE(ray_pos - vec3(0.0, 0.0, normal_sample_length)).a));
+}
+
+float get_shadow(int iter, vec3 ray_pos) {
+	return softshadow(ray_pos - normalize(light_ray) * collision_threshold * 4.0, -normalize(light_ray), 0.4, 8.0, 8);
 }
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
@@ -137,16 +141,35 @@ void fragment() {
 	vec3 ray_dir = vec3(px, py, -1);
 	ray_dir = cam_mat * normalize(ray_dir);
 	
-	float closest_dist = universe_size;
-	vec4 ray_info;
-	int iter = march(ray_pos, ray_dir, closest_dist, ray_info);
+	int surfaces_hit = 0;
+	vec3 final_color = vec3(0.1, 0.1, 0.1);
 	
+	for (int i = 0; i < max_bounce; i++) {
+		float closest_dist = universe_size;
+		vec4 ray_info;
+		int iter = march(ray_pos, ray_dir, closest_dist, ray_info);
+		if (iter == max_iter) {
+			break;
+		}
+		
+		vec3 hit_color = ray_info.rgb * get_shadow(iter, ray_pos);
+		if (iter < max_iter) {
+			hit_color *= vec3(1.0 - float(iter) / float(max_iter));
+		} 
+		final_color += hit_color;
+		
+		
+		
+		surfaces_hit += 1;
+		ray_dir = get_normal(ray_pos);
+		ray_pos += ray_dir * collision_threshold * 4.0;
+	}
+	if (surfaces_hit > 0) {
+		final_color /= float(surfaces_hit);
+	}
 	// Color the fractal if we collided with it, otherwise create a glow with
 	// the closest we ever got to the fractal
-	COLOR.rgb = ray_info.rgb * get_color(iter, ray_pos);
-	if (iter < max_iter) {
-		COLOR.rgb *= vec3(1.0 - float(iter) / float(max_iter));
-	} else {
-		COLOR.rgb *= (1.0 - pow(closest_dist, glow_range));
-	}
+	COLOR.rgb = final_color;
+	
+
 }

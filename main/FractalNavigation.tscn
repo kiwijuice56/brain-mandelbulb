@@ -8,7 +8,8 @@
 
 [sub_resource type="ShaderMaterial" id="1"]
 shader = ExtResource("1_11tbm")
-shader_parameter/max_iter = 512
+shader_parameter/max_iter = 256
+shader_parameter/max_bounce = 4
 shader_parameter/max_bulb_iter = 8
 shader_parameter/bulb_power = 8.0
 shader_parameter/cam_pos = Vector3(8, 8, 9)
