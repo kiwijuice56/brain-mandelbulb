@@ -20,7 +20,7 @@ uniform vec3 light_ray = vec3(0.0, -1.0, 0.0);
 uniform float light_dist = 8.0;
 
 group_uniforms scene;
-uniform vec3 sky_color: source_color;
+uniform vec3 fog_color: source_color;
 uniform vec3 fractal_color: source_color;
 uniform vec3 plane_normal = vec3(0.2, 1.0, 0.0);
 uniform float plane_height = 1.1;
@@ -137,10 +137,14 @@ vec3 get_color(vec2 uv) {
 	vec3 ray_dir = vec3(px, py, -1);
 	ray_dir = _cam_mat * normalize(ray_dir);
 	
-	vec3 final_color = sky_color;
+	vec3 final_color = vec3(0.0);
+	float depth = runaway_threshold;
 	for (int i = 0; i < max_bounce; i++) {
 		int id;
+		vec3 origin = ray_pos;
 		int iter = march(ray_pos, ray_dir, id);
+		
+		
 		if (iter == max_iter) 
 			break;
 		
@@ -151,36 +155,41 @@ vec3 get_color(vec2 uv) {
 		if (id == 0) {
 			albedo = fractal_color;
 			reflectivity = 0.05;
-			light_sharpness = 7.0;
-			roughness = 0.8;
+			light_sharpness = 3.0;
+			roughness = 0.6;
 		} else {
 			albedo = plane_color;
 			reflectivity = 0.2;
 			light_sharpness = 8.0;
-			roughness = 0.8;
+			roughness = 0.2;
 		}
 		
 		vec3 normal = get_normal(ray_pos);
-		
-		vec3 hit_color = albedo * soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), light_sharpness);
-		
-		
-		
 		ray_dir = ray_dir - 2.0 * dot(ray_dir, normal) * normal;
 		ray_pos += ray_dir * collision_threshold * 4.0;
 		
+		vec3 hit_color = albedo;
+		
+		
 		hit_color *= vec3(1.0 - float(iter) / float(max_iter));
-		hit_color *= pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.2);
+		hit_color *= pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.4) * 1.055 - 0.055;
 		
 		float specular = dot(-normalize(light_ray), ray_dir);
 		float specular_power = pow(25.0 * (roughness - 1.0), 2.0) + 2.0;
 		hit_color += vec3(0.5) * pow(specular, specular_power);
 		
-		if (i == 0) 
+		hit_color *= soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), light_sharpness);
+		if (i == 0) {
 			final_color = hit_color;
+			depth = length(origin - ray_pos);
+		}
 		final_color = mix(final_color, hit_color, reflectivity);
+		
+		
 	}
-	return final_color;
+	float fog = 1.0 - depth / runaway_threshold;
+	fog = clamp(1.0 + pow(fog-1.0, 3.0), 0.0, 1.0);
+	return final_color * fog + fog_color * (1.0 - fog);
 }
 
 void fragment() {
