@@ -4,8 +4,8 @@ group_uniforms detail;
 uniform int max_iter = 128; // How many iterations an individual ray can march
 uniform int max_bounce = 4; // How many times a ray can be reflected
 uniform int light_iter = 64;
-uniform float collision_threshold = 1.0e-4; // Distance where a ray is considered to have collided
-uniform float normal_sample_length = 1.0e-3; // How far along a collided surface to move when sampling for a normal vector
+uniform float collision_threshold = 1.0e-3; // Distance where a ray is considered to have collided
+uniform float normal_sample_length = 1.0e-2; // How far along a collided surface to move when sampling for a normal vector
 
 group_uniforms fractal;
 uniform int bulb_iter = 8; // Increase for more fractal detail, decrease for performance
@@ -101,21 +101,19 @@ int march(inout vec3 ray_pos, vec3 ray_dir, inout int id) {
 }
 
 // https://iquilezles.org/articles/rmshadows/
-float soft_shadow(vec3 ray_pos, in vec3 ray_dir) {
-	ray_pos += ray_dir * collision_threshold * 8.0;
-	
+float soft_shadow(vec3 ray_pos, vec3 ray_dir, float light_sharpness) {
 	float min_shadow = 1.0;
-	float dist_from_surface = collision_threshold * 8.0;
+	float dist_from_surface = 0.0;
 	for(int i = 0; i < light_iter; i++) {
 		int _id;
 		float dist = abs(world_DE(ray_pos, _id));
 		if(dist < collision_threshold)
 			return 0.0;
-		if (dist > runaway_threshold) {
+		if (dist > runaway_threshold * 4.0) {
 			break;
 		}
 		ray_pos += ray_dir * dist;
-		min_shadow = min(min_shadow, light_dist * dist/dist_from_surface);
+		min_shadow = min(min_shadow, light_sharpness * dist/dist_from_surface);
 		dist_from_surface += dist;
 	}
 	return min_shadow;
@@ -146,27 +144,41 @@ vec3 get_color(vec2 uv) {
 		if (iter == max_iter) 
 			break;
 		
+		float light_sharpness = 0.0;
 		float reflectivity = 0.0;
+		float roughness = 0.0;
 		vec3 albedo = vec3(0.0);
 		if (id == 0) {
 			albedo = fractal_color;
 			reflectivity = 0.05;
+			light_sharpness = 7.0;
+			roughness = 0.8;
 		} else {
 			albedo = plane_color;
-			reflectivity = 0.5;
+			reflectivity = 0.2;
+			light_sharpness = 8.0;
+			roughness = 0.8;
 		}
 		
-		
-		vec3 hit_color = albedo * soft_shadow(ray_pos, -normalize(light_ray));
-		if (i == 0) 
-			final_color = hit_color;
-		
-		hit_color *= vec3(1.0 - float(iter) / float(max_iter));
-		final_color = mix(final_color, hit_color, reflectivity);
-		
 		vec3 normal = get_normal(ray_pos);
+		
+		vec3 hit_color = albedo * soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), light_sharpness);
+		
+		
+		
 		ray_dir = ray_dir - 2.0 * dot(ray_dir, normal) * normal;
 		ray_pos += ray_dir * collision_threshold * 4.0;
+		
+		hit_color *= vec3(1.0 - float(iter) / float(max_iter));
+		hit_color *= pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.2);
+		
+		float specular = dot(-normalize(light_ray), ray_dir);
+		float specular_power = pow(25.0 * (roughness - 1.0), 2.0) + 2.0;
+		hit_color += vec3(0.5) * pow(specular, specular_power);
+		
+		if (i == 0) 
+			final_color = hit_color;
+		final_color = mix(final_color, hit_color, reflectivity);
 	}
 	return final_color;
 }

@@ -6,22 +6,22 @@
 
 [sub_resource type="ShaderMaterial" id="1"]
 shader = ExtResource("1_11tbm")
-shader_parameter/max_iter = 212
+shader_parameter/max_iter = 512
 shader_parameter/max_bounce = 2
-shader_parameter/light_iter = 31
-shader_parameter/collision_threshold = 0.0001
-shader_parameter/normal_sample_length = 0.001
-shader_parameter/bulb_iter = 8
+shader_parameter/light_iter = 32
+shader_parameter/collision_threshold = 0.001
+shader_parameter/normal_sample_length = 0.01
+shader_parameter/bulb_iter = 6
 shader_parameter/bulb_power = 0.0
 shader_parameter/fov = 86.0
 shader_parameter/runaway_threshold = 4.0
-shader_parameter/light_ray = Vector3(0, -1, 0.8)
-shader_parameter/light_dist = 4.9
-shader_parameter/sky_color = Color(0.0486, 0.09897, 0.18, 1)
-shader_parameter/fractal_color = Color(0.2072, 0.56, 0.3836, 1)
+shader_parameter/light_ray = Vector3(0.07, -1, -0.47)
+shader_parameter/light_dist = 8.0
+shader_parameter/sky_color = Color(0.1632, 0.199787, 0.32, 1)
+shader_parameter/fractal_color = Color(0.568627, 0.815686, 0.380392, 1)
 shader_parameter/plane_normal = Vector3(0, 1, 0)
 shader_parameter/plane_height = 1.1
-shader_parameter/plane_color = Color(0.168627, 0.305882, 0.4, 1)
+shader_parameter/plane_color = Color(0.3233, 0.485215, 0.53, 1)
 shader_parameter/_cam_pos = Vector3(0, 0, 3)
 shader_parameter/_cam_mat = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
 shader_parameter/_screen_size = Vector2(1152, 648)
