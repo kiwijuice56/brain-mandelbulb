@@ -1,33 +1,38 @@
-[gd_scene load_steps=7 format=3 uid="uid://dican8vros2tb"]
+[gd_scene load_steps=5 format=3 uid="uid://dican8vros2tb"]
 
 [ext_resource type="Script" path="res://main/fractal_navigation.gd" id="1"]
 [ext_resource type="Shader" path="res://main/mandelbulb_fractal.gdshader" id="1_11tbm"]
 [ext_resource type="Script" path="res://main/viewer.gd" id="2"]
-[ext_resource type="Theme" uid="uid://ciixme536goj6" path="res://main/ui/ui_theme.tres" id="5"]
-[ext_resource type="PackedScene" path="res://main/ui/UI.tscn" id="6"]
 
 [sub_resource type="ShaderMaterial" id="1"]
 shader = ExtResource("1_11tbm")
 shader_parameter/max_iter = 256
-shader_parameter/max_bounce = 4
-shader_parameter/max_bulb_iter = 8
-shader_parameter/bulb_power = 8.0
-shader_parameter/cam_pos = Vector3(8, 8, 9)
-shader_parameter/cam_mat = Basis(0, 0, 0, 0, 0, 0, 0, 0, 0)
-shader_parameter/width = 1024.0
-shader_parameter/height = 1024.0
-shader_parameter/ambient_occlusion = false
-shader_parameter/glow = true
+shader_parameter/max_bounce = 2
+shader_parameter/light_iter = 64
 shader_parameter/collision_threshold = 0.00013
 shader_parameter/normal_sample_length = 0.001
+shader_parameter/bulb_iter = 8
+shader_parameter/bulb_power = 8.0
+shader_parameter/fov = 86.0
+shader_parameter/runaway_threshold = 8.0
+shader_parameter/light_ray = Vector3(0, -1, 0)
+shader_parameter/light_dist = 6.0
+shader_parameter/sky_color = Color(0.08412, 0.0576, 0.18, 1)
+shader_parameter/fractal_color = Color(1, 0.23, 0.627833, 1)
+shader_parameter/plane_normal = Vector3(0, 1, 0)
+shader_parameter/plane_height = 1.1
+shader_parameter/plane_color = Color(0.168627, 0.180392, 0.4, 1)
+shader_parameter/_cam_pos = Vector3(0, 0, 3)
+shader_parameter/_cam_mat = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
+shader_parameter/_screen_size = Vector2(1152, 648)
 
-[node name="FractalNavigation" type="ColorRect"]
+[node name="FractalNavigation" type="ColorRect" node_paths=PackedStringArray("camera")]
 material = SubResource("1")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource("5")
 script = ExtResource("1")
+camera = NodePath("Viewer/Camera3D")
 
 [node name="Viewer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
@@ -36,7 +41,3 @@ mouse_sensitivity = 0.002
 move_speed = 1.0
 
 [node name="Camera3D" type="Camera3D" parent="Viewer"]
-
-[node name="UI" parent="." instance=ExtResource("6")]
-visible = false
-anchors_preset = 0
