@@ -39,10 +39,12 @@ float plane_DE(vec3 p) {
 
 // Returns distance estimate to fractal
 // http://blog.hvidtfeldts.net/index.php/2011/09/distance-estimated-3d-fractals-v-the-mandelbulb-different-de-approximations/
-float mandelbulb_DE(vec3 p) {
+float mandelbulb_DE(vec3 p, inout vec3 orbit_dist) {
 	vec3 z = p;
 	float dr = 1.0;
 	float r = 0.0;
+	
+	orbit_dist = vec3(2.0);
 	for (int i = 0; i < bulb_iter; i++) {
 		r = length(z);
 		if (r > 2.0)
@@ -51,7 +53,7 @@ float mandelbulb_DE(vec3 p) {
 		// convert to polar coordinates
 		float theta = acos(z.z/r);
 		float phi = atan(z.y, z.x);
-		dr =  pow(r, bulb_power - 1.0) * bulb_power * dr + 1.0;
+		dr = pow(r, bulb_power - 1.0) * bulb_power * dr + 1.0;
 		
 		// scale and rotate the point
 		float zr = pow(r, bulb_power);
@@ -61,13 +63,14 @@ float mandelbulb_DE(vec3 p) {
 		// convert back to cartesian coordinates
 		z = zr * vec3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
 		z += p;
+		orbit_dist.r = min(orbit_dist.r, length(z - vec3(0.0, 0.5, -0.5)));
 	}
 	return 0.5 * log(r) * r/dr;
 }
 
 // Returns a vec4 of the color and distance to the closest object as rgba respectively
-float world_DE(vec3 p, inout int collision_id) {
-	float d1 = mandelbulb_DE(p);
+float world_DE(vec3 p, inout int collision_id, inout vec3 orbit_dist) {
+	float d1 = mandelbulb_DE(p, orbit_dist);
 	float d2 = plane_DE(p);
 	if (d1 < d2) {
 		collision_id = 0;
@@ -78,12 +81,11 @@ float world_DE(vec3 p, inout int collision_id) {
 	}
 }
 
-int march(inout vec3 ray_pos, vec3 ray_dir, inout int id) {
+int march(inout vec3 ray_pos, vec3 ray_dir, inout int id, inout vec3 orbit_dist) {
 	float dist = 10000.0;
 	int iter = 0;
-	
 	for (int i = 0; i < max_iter; i++) {
-		dist = abs(world_DE(ray_pos, id));
+		dist = abs(world_DE(ray_pos, id, orbit_dist));
 		ray_pos += ray_dir * dist;
 		
 		// We can quit marching early if we are extremely far from the fractal
@@ -104,9 +106,10 @@ int march(inout vec3 ray_pos, vec3 ray_dir, inout int id) {
 float soft_shadow(vec3 ray_pos, vec3 ray_dir, float light_sharpness) {
 	float min_shadow = 1.0;
 	float dist_from_surface = 0.0;
+	vec3 _orbit_dist;
 	for(int i = 0; i < light_iter; i++) {
 		int _id;
-		float dist = abs(world_DE(ray_pos, _id));
+		float dist = abs(world_DE(ray_pos, _id, _orbit_dist));
 		if(dist < collision_threshold)
 			return 0.0;
 		if (dist > runaway_threshold * 4.0) {
@@ -121,10 +124,11 @@ float soft_shadow(vec3 ray_pos, vec3 ray_dir, float light_sharpness) {
 
 vec3 get_normal(vec3 ray_pos) {
 	int _id;
+	vec3 _orbit_dist;
 	return normalize(
-		vec3(world_DE(ray_pos + vec3(normal_sample_length, 0.0, 0.0), _id) - world_DE(ray_pos - vec3(normal_sample_length, 0.0, 0.0), _id),
-			 world_DE(ray_pos + vec3(0.0, normal_sample_length, 0.0), _id) - world_DE(ray_pos - vec3(0.0, normal_sample_length, 0.0), _id),
-			 world_DE(ray_pos + vec3(0.0, 0.0, normal_sample_length), _id) - world_DE(ray_pos - vec3(0.0, 0.0, normal_sample_length), _id)));
+		vec3(world_DE(ray_pos + vec3(normal_sample_length, 0.0, 0.0), _id, _orbit_dist) - world_DE(ray_pos - vec3(normal_sample_length, 0.0, 0.0), _id, _orbit_dist),
+			 world_DE(ray_pos + vec3(0.0, normal_sample_length, 0.0), _id, _orbit_dist) - world_DE(ray_pos - vec3(0.0, normal_sample_length, 0.0), _id, _orbit_dist),
+			 world_DE(ray_pos + vec3(0.0, 0.0, normal_sample_length), _id, _orbit_dist) - world_DE(ray_pos - vec3(0.0, 0.0, normal_sample_length), _id, _orbit_dist)));
 }
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
@@ -142,7 +146,8 @@ vec3 get_color(vec2 uv) {
 	for (int i = 0; i < max_bounce; i++) {
 		int id;
 		vec3 origin = ray_pos;
-		int iter = march(ray_pos, ray_dir, id);
+		vec3 orbit_dist;
+		int iter = march(ray_pos, ray_dir, id, orbit_dist);
 		
 		
 		if (iter == max_iter) 
@@ -153,7 +158,8 @@ vec3 get_color(vec2 uv) {
 		float roughness = 0.0;
 		vec3 albedo = vec3(0.0);
 		if (id == 0) {
-			albedo = fractal_color;
+			float x = min(4.0, orbit_dist.r) / 4.0;
+			albedo = fractal_color * x + (1.0 - x) * plane_color;
 			reflectivity = 0.05;
 			light_sharpness = 3.0;
 			roughness = 0.6;

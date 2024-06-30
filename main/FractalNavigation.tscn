@@ -12,19 +12,33 @@ shader_parameter/light_iter = 48
 shader_parameter/collision_threshold = 0.001
 shader_parameter/normal_sample_length = 0.01
 shader_parameter/bulb_iter = 6
-shader_parameter/bulb_power = 0.0
+shader_parameter/bulb_power = 8.0
 shader_parameter/fov = 86.0
 shader_parameter/runaway_threshold = 13.345
-shader_parameter/light_ray = Vector3(0.07, -1, -0.47)
+shader_parameter/light_ray = Vector3(0.65, -1, -0.47)
 shader_parameter/light_dist = 8.0
 shader_parameter/fog_color = Color(0.0784, 0.100987, 0.14, 1)
-shader_parameter/fractal_color = Color(0.568627, 0.368627, 0.380392, 1)
+shader_parameter/fractal_color = Color(1, 0.33, 0.341166, 1)
 shader_parameter/plane_normal = Vector3(0, 1, 0)
 shader_parameter/plane_height = 1.1
 shader_parameter/plane_color = Color(0.3233, 0.485215, 0.53, 1)
 shader_parameter/_cam_pos = Vector3(0, 0, 3)
 shader_parameter/_cam_mat = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
 shader_parameter/_screen_size = Vector2(1152, 648)
+
+[sub_resource type="Animation" id="Animation_2i3v2"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:material:shader_parameter/bulb_power")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(8, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
 
 [sub_resource type="Animation" id="Animation_3qpf6"]
 resource_name = "move"
@@ -39,20 +53,6 @@ tracks/0/keys = {
 "handle_modes": PackedInt32Array(0, 0, 0),
 "points": PackedFloat32Array(6, -0.25, 0, 0.25, 0, 12, -0.25, 0, 0.25, 0, 6, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0, 0.5, 1)
-}
-
-[sub_resource type="Animation" id="Animation_2i3v2"]
-length = 0.001
-tracks/0/type = "bezier"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:material:shader_parameter/bulb_power")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"handle_modes": PackedInt32Array(0),
-"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0),
-"times": PackedFloat32Array(0)
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_7h5cx"]
