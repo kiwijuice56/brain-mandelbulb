@@ -10,11 +10,20 @@ func _ready() -> void:
 func _on_settings_updated() -> void:
 	match GlobalData.settings_configuration.graphics_quality:
 		0:
+			material.set_shader_parameter("bulb_iter", 5)
+			material.set_shader_parameter("collision_threshold", 1.0e-2)
+			material.set_shader_parameter("light_iter", 32)
 			material.set_shader_parameter("max_iter", 64)
 		1:
+			material.set_shader_parameter("bulb_iter", 6)
+			material.set_shader_parameter("collision_threshold", 1.0e-3)
+			material.set_shader_parameter("light_iter", 48)
 			material.set_shader_parameter("max_iter", 128)
 		2:
-			material.set_shader_parameter("max_iter", 256)
+			material.set_shader_parameter("bulb_iter", 8)
+			material.set_shader_parameter("collision_threshold", 1.0e-4)
+			material.set_shader_parameter("light_iter", 64)
+			material.set_shader_parameter("max_iter", 512)
 
 func _process(_delta) -> void:
 	material.set_shader_parameter("_cam_pos", camera.global_position)

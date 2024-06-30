@@ -23,6 +23,7 @@ GlobalData="*res://main/data/global_data.gd"
 
 window/size/viewport_width=1024
 window/size/viewport_height=1024
+window/size/mode=2
 window/stretch/aspect="expand"
 
 [gui]

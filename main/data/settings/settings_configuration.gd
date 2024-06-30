@@ -10,3 +10,7 @@ signal updated
 	set(val):
 		display_scale = val
 		updated.emit()
+@export var window_mode: DisplayServer.WindowMode = DisplayServer.WindowMode.WINDOW_MODE_MAXIMIZED:
+	set(val):
+		window_mode = val
+		updated.emit()

@@ -81,3 +81,22 @@ popup/item_2/text = "1/4x"
 popup/item_2/id = 2
 popup/item_3/text = "1/8x"
 popup/item_3/id = 3
+
+[node name="WindowModeHBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/WindowModeHBoxContainer"]
+layout_mode = 2
+text = "Window Mode"
+
+[node name="WindowModeOptionButton" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/WindowModeHBoxContainer" groups=["Option"]]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 10
+focus_mode = 0
+item_count = 2
+selected = 0
+popup/item_0/text = "windowed"
+popup/item_0/id = 0
+popup/item_1/text = "fullscreen"
+popup/item_1/id = 1
