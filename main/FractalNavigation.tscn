@@ -21,14 +21,15 @@ shader_parameter/color_intensity = 0.5
 shader_parameter/fov = 86.0
 shader_parameter/runaway_threshold = 14.0
 shader_parameter/light_ray = Vector3(0.65, -1, -0.47)
-shader_parameter/clear_color = Color(0.0500716, 0.0703892, 0.108783, 1)
-shader_parameter/fog_color = Color(0.1288, 0.165907, 0.23, 1)
-shader_parameter/plane_normal = Vector3(0, 1, 0)
+shader_parameter/clear_color = Color(0.1365, 0.162225, 0.21, 1)
+shader_parameter/fog_color = Color(0.161, 0.1863, 0.23, 1)
+shader_parameter/plane_normal = Vector3(0.2, 1, 0)
 shader_parameter/plane_height = 1.1
-shader_parameter/plane_color = Color(0.3233, 0.485215, 0.53, 1)
+shader_parameter/plane_color1 = Color(0.187, 0.1892, 0.22, 1)
+shader_parameter/plane_color2 = Color(0.25858, 0.2548, 0.28, 1)
 shader_parameter/_cam_pos = Vector3(0, 0, 3)
 shader_parameter/_cam_mat = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
-shader_parameter/_screen_size = Vector2(1152, 648)
+shader_parameter/_screen_size = Vector2(700, 600)
 
 [sub_resource type="Animation" id="Animation_2i3v2"]
 length = 0.001
@@ -70,6 +71,8 @@ material = SubResource("1")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1")
 camera = NodePath("Viewer/Camera3D")
 

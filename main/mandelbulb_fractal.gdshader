@@ -30,7 +30,8 @@ uniform vec3 clear_color: source_color;
 uniform vec3 fog_color: source_color;
 uniform vec3 plane_normal = vec3(0.2, 1.0, 0.0);
 uniform float plane_height = 1.1;
-uniform vec3 plane_color: source_color;
+uniform vec3 plane_color1: source_color;
+uniform vec3 plane_color2: source_color;
 
 // Updated by script only
 group_uniforms internal;
@@ -158,7 +159,7 @@ vec3 get_normal(vec3 ray_pos) {
 void fragment() {
 	// Initialize materials
 	Material fractal = Material(0.05, 0.6, 2.0, 0.7, vec3(0.0));
-	Material plane = Material(0.2, 0.2, 8.0, 0.5, plane_color);
+	Material plane = Material(0.2, 0.2, 8.0, 0.5, vec3(0.0));
 	
 	// Take the pixel position (UV) and convert it into a ray based on the camera's orientation
 	vec3 ray_pos = _cam_pos;
@@ -189,6 +190,9 @@ void fragment() {
 			fractal.albedo_color = fractal_color1 * x + (1.0 - x) * fractal_color2;
 			surface_material = fractal;
 		} else { 
+			vec3 p = floor(ray_pos);
+			float f = mod(p.x + p.z, 2.0);
+			plane.albedo_color = plane_color1 * f + (1.0 - f) * plane_color2;
 			surface_material = plane;
 		}
 		

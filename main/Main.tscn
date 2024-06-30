@@ -5,5 +5,3 @@
 [node name="Main" type="Node"]
 
 [node name="FractalNavigation" parent="." instance=ExtResource("1_scfm2")]
-grow_horizontal = 2
-grow_vertical = 2
