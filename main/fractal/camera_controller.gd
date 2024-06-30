@@ -1,5 +1,4 @@
-class_name Viewer
-extends Node3D
+class_name CameraController extends Node3D
 
 @export var mouse_sensitivity: float = 0.001
 @export var move_speed: float = 5.0
@@ -7,7 +6,7 @@ extends Node3D
 
 var velocity: Vector3
 
-@onready var cam: Camera3D = get_node("Camera3D")
+@export var camera: Camera3D
 
 # Modified from:
 # https://kidscancode.org/godot_recipes/3.x/g101/3d/101_3d_07/
@@ -18,11 +17,11 @@ func _physics_process(delta: float) -> void:
 	position += (input_dir.y * global_transform.basis.z + input_dir.x * global_transform.basis.x + 
 	vertical_input_dir * global_transform.basis.y).normalized() * move_speed * delta
 	rotate_y(-cam_dir.x * cam_rot_speed * delta)
-	cam.rotate_x(-cam_dir.y * cam_rot_speed * delta)
-	cam.rotation.x = clamp(cam.rotation.x, -1.2, 1.2)
+	camera.rotate_x(-cam_dir.y * cam_rot_speed * delta)
+	camera.rotation.x = clamp(camera.rotation.x, -1.2, 1.2)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-event.relative.x * mouse_sensitivity)
-		cam.rotate_x(-event.relative.y * mouse_sensitivity)
-		cam.rotation.x = clamp(cam.rotation.x, -1.2, 1.2)
+		camera.rotate_x(-event.relative.y * mouse_sensitivity)
+		camera.rotation.x = clamp(camera.rotation.x, -1.2, 1.2)

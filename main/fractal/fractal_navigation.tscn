@@ -1,11 +1,11 @@
 [gd_scene load_steps=8 format=3 uid="uid://dican8vros2tb"]
 
-[ext_resource type="Script" path="res://main/fractal_navigation.gd" id="1"]
-[ext_resource type="Shader" path="res://main/mandelbulb_fractal.gdshader" id="1_11tbm"]
-[ext_resource type="Script" path="res://main/viewer.gd" id="2"]
+[ext_resource type="Shader" path="res://main/fractal/shader/mandelbulb_fractal.gdshader" id="1_iwryw"]
+[ext_resource type="Script" path="res://main/fractal/fractal_navigation.gd" id="2_g8vdc"]
+[ext_resource type="Script" path="res://main/fractal/camera_controller.gd" id="3_a16io"]
 
 [sub_resource type="ShaderMaterial" id="1"]
-shader = ExtResource("1_11tbm")
+shader = ExtResource("1_iwryw")
 shader_parameter/max_iter = 128
 shader_parameter/max_bounce = 2
 shader_parameter/light_iter = 45
@@ -74,16 +74,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1")
-camera = NodePath("Viewer/Camera3D")
+script = ExtResource("2_g8vdc")
+camera = NodePath("CameraController/Camera3D")
 
-[node name="Viewer" type="Node3D" parent="."]
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("camera")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
-script = ExtResource("2")
+script = ExtResource("3_a16io")
 mouse_sensitivity = 0.002
 move_speed = 1.0
+camera = NodePath("Camera3D")
 
-[node name="Camera3D" type="Camera3D" parent="Viewer"]
+[node name="Camera3D" type="Camera3D" parent="CameraController"]
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

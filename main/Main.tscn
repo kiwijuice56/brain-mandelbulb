@@ -1,7 +1,27 @@
-[gd_scene load_steps=2 format=3 uid="uid://cw1g2dmmqri2o"]
+[gd_scene load_steps=4 format=3 uid="uid://cw1g2dmmqri2o"]
 
-[ext_resource type="PackedScene" uid="uid://dican8vros2tb" path="res://main/FractalNavigation.tscn" id="1_scfm2"]
+[ext_resource type="Script" path="res://main/fractal/fractal_viewport_container.gd" id="1_vq437"]
+[ext_resource type="PackedScene" uid="uid://dican8vros2tb" path="res://main/fractal/fractal_navigation.tscn" id="1_whbjr"]
+[ext_resource type="PackedScene" uid="uid://bxugnafqdbw11" path="res://main/ui/menu/settings/settings_menu.tscn" id="2_pxojy"]
 
 [node name="Main" type="Node"]
 
-[node name="FractalNavigation" parent="." instance=ExtResource("1_scfm2")]
+[node name="FractalViewportContainer" type="SubViewportContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+script = ExtResource("1_vq437")
+
+[node name="SubViewport" type="SubViewport" parent="FractalViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1024, 1024)
+render_target_update_mode = 4
+
+[node name="FractalNavigation" parent="FractalViewportContainer/SubViewport" instance=ExtResource("1_whbjr")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="SettingsMenu" parent="UI" instance=ExtResource("2_pxojy")]
