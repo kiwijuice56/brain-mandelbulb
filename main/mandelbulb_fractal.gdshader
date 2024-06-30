@@ -24,6 +24,7 @@ uniform float runaway_threshold = 8.0; // Distance where a ray is considered far
 
 group_uniforms light;
 uniform vec3 light_ray = vec3(0.0, -1.0, 0.0);
+uniform float fog_dist = 8.0;
 
 group_uniforms scene;
 uniform vec3 clear_color: source_color;
@@ -158,8 +159,8 @@ vec3 get_normal(vec3 ray_pos) {
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
 void fragment() {
 	// Initialize materials
-	Material fractal = Material(0.05, 0.6, 2.0, 0.7, vec3(0.0));
-	Material plane = Material(0.2, 0.2, 8.0, 0.5, vec3(0.0));
+	Material fractal = Material(0.07, 0.6, 2.0, 0.7, vec3(0.0));
+	Material plane = Material(0.25, 0.2, 8.0, 0.5, vec3(0.0));
 	
 	// Take the pixel position (UV) and convert it into a ray based on the camera's orientation
 	vec3 ray_pos = _cam_pos;
@@ -228,7 +229,7 @@ void fragment() {
 	}
 	// Distance fog
 	// https://blog.devgenius.io/some-interesting-raymarching-concepts-8e38aa67e1ef
-	float fog = 1.0 - pixel_depth / runaway_threshold;
+	float fog = 1.0 - pixel_depth / fog_dist;
 	fog = clamp(1.0 + pow(fog - 1.0, 3.0), 0.0, 1.0);
 	pixel_color *= fog + fog_color * (1.0 - fog);
 	

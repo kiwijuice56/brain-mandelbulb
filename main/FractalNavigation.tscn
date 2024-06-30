@@ -6,9 +6,9 @@
 
 [sub_resource type="ShaderMaterial" id="1"]
 shader = ExtResource("1_11tbm")
-shader_parameter/max_iter = 512
+shader_parameter/max_iter = 128
 shader_parameter/max_bounce = 2
-shader_parameter/light_iter = 48
+shader_parameter/light_iter = 45
 shader_parameter/collision_threshold = 0.001
 shader_parameter/normal_sample_length = 0.01
 shader_parameter/bulb_iter = 6
@@ -19,17 +19,18 @@ shader_parameter/fractal_color2 = Color(0.72, 0.62952, 0.3024, 1)
 shader_parameter/color_center_point = Vector3(0, 0.5, -0.5)
 shader_parameter/color_intensity = 0.5
 shader_parameter/fov = 86.0
-shader_parameter/runaway_threshold = 14.0
+shader_parameter/runaway_threshold = 4.0
 shader_parameter/light_ray = Vector3(0.65, -1, -0.47)
-shader_parameter/clear_color = Color(0.1365, 0.162225, 0.21, 1)
+shader_parameter/fog_dist = 8.0
+shader_parameter/clear_color = Color(0, 0, 0, 1)
 shader_parameter/fog_color = Color(0.161, 0.1863, 0.23, 1)
-shader_parameter/plane_normal = Vector3(0.2, 1, 0)
+shader_parameter/plane_normal = Vector3(0, 1, 0)
 shader_parameter/plane_height = 1.1
 shader_parameter/plane_color1 = Color(0.187, 0.1892, 0.22, 1)
 shader_parameter/plane_color2 = Color(0.25858, 0.2548, 0.28, 1)
 shader_parameter/_cam_pos = Vector3(0, 0, 3)
 shader_parameter/_cam_mat = Basis(1, 0, 0, 0, 1, 0, 0, 0, 1)
-shader_parameter/_screen_size = Vector2(700, 600)
+shader_parameter/_screen_size = Vector2(1024, 1024)
 
 [sub_resource type="Animation" id="Animation_2i3v2"]
 length = 0.001
