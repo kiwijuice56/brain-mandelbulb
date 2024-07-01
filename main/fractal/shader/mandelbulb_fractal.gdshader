@@ -159,7 +159,7 @@ vec3 get_normal(vec3 ray_pos) {
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
 void fragment() {
 	// Initialize materials
-	Material fractal = Material(0.07, 0.6, 2.0, 0.7, vec3(0.0));
+	Material fractal = Material(0.07, 0.2, 5.0, 0.5, vec3(0.0));
 	Material plane = Material(0.25, 0.2, 8.0, 0.5, vec3(0.0));
 	
 	// Take the pixel position (UV) and convert it into a ray based on the camera's orientation
@@ -209,7 +209,7 @@ void fragment() {
 		hit_color *= vec3(1.0 - float(iter) / float(max_iter));
 		
 		// Shadows based on the normal vector at this surface
-		hit_color *= pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.4) * 1.055 - 0.055;
+		hit_color *= 0.5 + 0.5 * pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.4) * 1.055 - 0.055;
 		
 		// Specular highlights
 		float specular = dot(-normalize(light_ray), ray_dir);
@@ -217,7 +217,7 @@ void fragment() {
 		hit_color += vec3(surface_material.specular_alpha) * pow(specular, specular_power);
 		
 		// Ray-traced shadows
-		hit_color *= soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), surface_material.shadow_sharpness);
+		hit_color *= 0.15 + 0.85 * soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), surface_material.shadow_sharpness);
 		
 		if (i == 0) {
 			pixel_color = hit_color;

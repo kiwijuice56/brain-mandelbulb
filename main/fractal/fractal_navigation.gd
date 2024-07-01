@@ -13,7 +13,7 @@ func _on_settings_updated() -> void:
 			material.set_shader_parameter("bulb_iter", 5)
 			material.set_shader_parameter("collision_threshold", 1.0e-2)
 			material.set_shader_parameter("light_iter", 32)
-			material.set_shader_parameter("max_iter", 64)
+			material.set_shader_parameter("max_iter", 96)
 		1:
 			material.set_shader_parameter("bulb_iter", 6)
 			material.set_shader_parameter("collision_threshold", 1.0e-3)
