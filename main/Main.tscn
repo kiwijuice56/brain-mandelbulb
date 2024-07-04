@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cw1g2dmmqri2o"]
+[gd_scene load_steps=5 format=3 uid="uid://cw1g2dmmqri2o"]
 
 [ext_resource type="Script" path="res://main/fractal/fractal_viewport_container.gd" id="1_vq437"]
 [ext_resource type="PackedScene" uid="uid://dican8vros2tb" path="res://main/fractal/fractal_navigation.tscn" id="1_whbjr"]
 [ext_resource type="PackedScene" uid="uid://bxugnafqdbw11" path="res://main/ui/menu/settings/settings_menu.tscn" id="2_pxojy"]
+[ext_resource type="Theme" uid="uid://dn85ajbf83rbd" path="res://main/ui/theme/main_theme.tres" id="4_x28n5"]
 
 [node name="Main" type="Node"]
 
@@ -20,8 +21,21 @@ handle_input_locally = false
 size = Vector2i(1024, 1024)
 render_target_update_mode = 4
 
-[node name="FractalNavigation" parent="FractalViewportContainer/SubViewport" instance=ExtResource("1_whbjr")]
+[node name="FractalNavigation" parent="FractalViewportContainer/SubViewport" node_paths=PackedStringArray("muse_status_label", "muse_data_label") instance=ExtResource("1_whbjr")]
+muse_status_label = NodePath("../../../UI/VBoxContainer/MuseStatusLabel")
+muse_data_label = NodePath("../../../UI/VBoxContainer/MuseDataLabel")
 
 [node name="UI" type="CanvasLayer" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+offset_right = 40.0
+offset_bottom = 94.0
+theme = ExtResource("4_x28n5")
+
+[node name="MuseStatusLabel" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
+
+[node name="MuseDataLabel" type="Label" parent="UI/VBoxContainer"]
+layout_mode = 2
 
 [node name="SettingsMenu" parent="UI" instance=ExtResource("2_pxojy")]

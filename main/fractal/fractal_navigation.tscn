@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dican8vros2tb"]
+[gd_scene load_steps=9 format=3 uid="uid://dican8vros2tb"]
 
 [ext_resource type="Shader" path="res://main/fractal/shader/mandelbulb_fractal.gdshader" id="1_iwryw"]
 [ext_resource type="Script" path="res://main/fractal/fractal_navigation.gd" id="2_g8vdc"]
+[ext_resource type="Theme" uid="uid://dn85ajbf83rbd" path="res://main/ui/theme/main_theme.tres" id="2_mqtqa"]
 [ext_resource type="Script" path="res://main/fractal/camera_controller.gd" id="3_a16io"]
 
 [sub_resource type="ShaderMaterial" id="1"]
@@ -14,10 +15,10 @@ shader_parameter/normal_sample_length = 0.01
 shader_parameter/bulb_iter = 6
 shader_parameter/bulb_power = 8.0
 shader_parameter/bulb_runaway_threshold = 2.0
-shader_parameter/fractal_color1 = Color(0, 0.9, 1, 1)
-shader_parameter/fractal_color2 = Color(0.192157, 0.356863, 0.615686, 1)
+shader_parameter/fractal_color1 = Color(1, 1, 1, 1)
+shader_parameter/fractal_color2 = Color(0.101865, 0.335699, 0.384419, 1)
 shader_parameter/color_center_point = Vector3(-0.71, -0.75, -0.5)
-shader_parameter/color_intensity = 0.5
+shader_parameter/color_intensity = 0.55
 shader_parameter/fov = 86.0
 shader_parameter/runaway_threshold = 4.0
 shader_parameter/light_ray = Vector3(0.65, -1, -0.47)
@@ -44,18 +45,6 @@ tracks/0/keys = {
 "handle_modes": PackedInt32Array(0),
 "points": PackedFloat32Array(8, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0)
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".:material:shader_parameter/fractal_color1")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(0, 0.9, 1, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_3qpf6"]
@@ -98,6 +87,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_mqtqa")
 script = ExtResource("2_g8vdc")
 camera = NodePath("CameraController/Camera3D")
 
@@ -114,5 +104,4 @@ camera = NodePath("Camera3D")
 libraries = {
 "": SubResource("AnimationLibrary_7h5cx")
 }
-autoplay = "move"
 speed_scale = 0.1

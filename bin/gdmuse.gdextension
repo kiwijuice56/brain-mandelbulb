@@ -1,0 +1,8 @@
+[configuration]
+
+entry_symbol = "gd_muse_library_init"
+compatibility_minimum = "4.2"
+
+[libraries]
+
+windows = "res://bin/libgdmuse.windows.template_debug.x86_64.dll"
