@@ -1,4 +1,11 @@
-# brain-mandelbox
+# brain-mandelbox / Muse EEG biofeedback
+
+Requires gd-muse binary release file to run in Godot editor.
+
+## Controls
+- `WASD` for movement
+- `Arrow keys` for camera movement
+- `Esc` to open options menu
 
 ## Code attribution
 Sources for different code snippets and/or concepts:

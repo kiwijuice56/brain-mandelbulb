@@ -57,7 +57,7 @@ func _on_alpha_score_received(data: PackedFloat64Array, _timestamp: int) -> void
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept", false):
-		gd_muse.connect_muse("MuseS-8DAB")
+		gd_muse.connect_muse(GlobalData.settings_configuration.muse_device_name)
 
 func _process(delta: float) -> void:
 	material.set_shader_parameter("_cam_pos", camera.global_position)

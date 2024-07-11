@@ -100,3 +100,18 @@ popup/item_0/text = "Windowed"
 popup/item_0/id = 0
 popup/item_1/text = "Fullscreen"
 popup/item_1/id = 1
+
+[node name="MuseNameHBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MuseNameHBoxContainer"]
+layout_mode = 2
+text = "Muse Device Name"
+
+[node name="MuseDeviceNameLineEdit" type="LineEdit" parent="PanelContainer/MarginContainer/VBoxContainer/MuseNameHBoxContainer" groups=["Option"]]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+text = "MuseS-8DAB"
+clear_button_enabled = true

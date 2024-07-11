@@ -14,3 +14,7 @@ signal updated
 	set(val):
 		window_mode = val
 		updated.emit()
+@export var muse_device_name: String = "MuseS-8DAB":
+	set(val):
+		muse_device_name = val
+		updated.emit()
