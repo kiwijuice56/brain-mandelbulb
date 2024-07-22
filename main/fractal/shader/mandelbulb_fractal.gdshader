@@ -25,6 +25,9 @@ uniform float runaway_threshold = 8.0; // Distance where a ray is considered far
 group_uniforms light;
 uniform vec3 light_ray = vec3(0.0, -1.0, 0.0);
 uniform float fog_dist = 8.0;
+uniform vec3 fill_light_color: source_color;
+uniform vec3 fill_light_ray = vec3(1.0, 0.0, 0.0);
+uniform float fill_light_strength = 0.1;
 
 group_uniforms scene;
 uniform vec3 clear_color: source_color;
@@ -187,7 +190,8 @@ void fragment() {
 		// Change material based on which collider we hit
 		Material surface_material;
 		if (collider_id == 0) { 
-			float x = min(1.0, collision_info.r);
+			float x = collision_info.r;
+			x -= floor(x);
 			fractal.albedo_color = fractal_color1 * x + (1.0 - x) * fractal_color2;
 			surface_material = fractal;
 		} else { 
@@ -206,10 +210,12 @@ void fragment() {
 		vec3 hit_color = surface_material.albedo_color;
 		
 		// Ambient occlusion
-		hit_color *= vec3(1.0 - float(iter) / float(max_iter));
+		float aa = float(iter) / float(max_iter);
+		hit_color = clear_color * aa + (1.0 - aa) * hit_color;
 		
 		// Shadows based on the normal vector at this surface
-		hit_color *= 0.5 + 0.5 * pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.4) * 1.055 - 0.055;
+		float normal_shadow = (0.75 + 0.25 * pow(max(0.0, dot(normal, -normalize(light_ray))), 1.0/2.4) * 1.055 - 0.055);
+		hit_color *= vec3(pow(normal_shadow, 1.2), pow(normal_shadow, 1.1), normal_shadow);
 		
 		// Specular highlights
 		float specular = dot(-normalize(light_ray), ray_dir);
@@ -217,7 +223,12 @@ void fragment() {
 		hit_color += vec3(surface_material.specular_alpha) * pow(specular, specular_power);
 		
 		// Ray-traced shadows
-		hit_color *= 0.15 + 0.85 * soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), surface_material.shadow_sharpness);
+		float ray_shadow = 0.25 + 0.75 * soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(light_ray), surface_material.shadow_sharpness);
+		hit_color *= vec3(pow(ray_shadow, 1.2), pow(ray_shadow, 1.2), ray_shadow);
+		
+		// Fill light
+		float fill_shadow = 0.15 + 0.85 * soft_shadow(ray_pos + normal * collision_threshold * 4.0, -normalize(fill_light_ray), surface_material.shadow_sharpness * 0.25);
+		hit_color += fill_shadow * fill_light_color * fill_light_strength;
 		
 		if (i == 0) {
 			pixel_color = hit_color;
