@@ -19,9 +19,12 @@ func _ready() -> void:
 	gd_muse = GDMuse.new()
 	
 	gd_muse.alpha_score_packet_received.connect(_on_alpha_score_received)
+	
 	gd_muse.muse_connecting.connect(_on_muse_connecting)
 	gd_muse.muse_connected.connect(_on_muse_connected)
 	gd_muse.muse_disconnected.connect(_on_muse_disconnected)
+	
+	
 	
 	gd_muse.listen_for_muses()
 
@@ -34,12 +37,12 @@ func _on_settings_updated() -> void:
 			material.set_shader_parameter("max_iter", 96)
 		1:
 			material.set_shader_parameter("bulb_iter", 6)
-			material.set_shader_parameter("collision_threshold", 1.0e-3)
+			material.set_shader_parameter("collision_threshold", 3.0e-3)
 			material.set_shader_parameter("light_iter", 48)
 			material.set_shader_parameter("max_iter", 256)
 		2:
 			material.set_shader_parameter("bulb_iter", 8)
-			material.set_shader_parameter("collision_threshold", 1.0e-4)
+			material.set_shader_parameter("collision_threshold", 2.0e-4)
 			material.set_shader_parameter("light_iter", 64)
 			material.set_shader_parameter("max_iter", 512)
 
@@ -52,7 +55,7 @@ func _on_muse_connected() -> void:
 func _on_muse_disconnected() -> void:
 	muse_status_label.set.call_deferred("text", "Muse disconnected. Press `Enter` to connect a headband.")
 
-func _on_alpha_score_received(data: PackedFloat64Array, _timestamp: int) -> void:
+func _on_alpha_score_received(data: PackedFloat64Array, timestamp: int) -> void:
 	update_fractal.call_deferred(data[1])
 
 func _input(event: InputEvent) -> void:

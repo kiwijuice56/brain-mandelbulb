@@ -162,7 +162,7 @@ vec3 get_normal(vec3 ray_pos) {
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html
 void fragment() {
 	// Initialize materials
-	Material fractal = Material(0.07, 0.2, 5.0, 0.5, vec3(0.0));
+	Material fractal = Material(0.07, 0.2, 5.0, 0.3, vec3(0.0));
 	Material plane = Material(0.25, 0.2, 8.0, 0.5, vec3(0.0));
 	
 	// Take the pixel position (UV) and convert it into a ray based on the camera's orientation
